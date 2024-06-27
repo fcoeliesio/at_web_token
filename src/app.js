@@ -4,32 +4,32 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const userRouter =  require('./routers/userRouter');
 const userService =  require('./services/userService');
-const port = 3000;
 
 const app = express();
 app.use(express.json());
 
+const PORT = process.env.PORT;
+const PASSWORD = process.env.PASSWORD;
+const AAP_NAME = process.env.AAP_NAME;
+const USER_NAME = process.env.USER_NAME;
+const CLUSTER_NAME = process.env.CLUSTER_NAME;
+
 const SECRET_KEY = 'your_secret_key';
 
-// o usuário passa o username e a senha
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
-  // pegamos o usuário do banco 
   const user = await userService.getByUserName(username);
 
-  // Verifica se o usuário existe
   if (!user) {
       return res.status(401).send('Invalid username or password');
   }
 
-  // Verifica a senha que o usuário passou com a senha do banco
   const validPassword = user.password == password;
   if (!validPassword) {
       return res.status(401).send('Invalid username or password');
   }
 
-  // Gera um token JWT
   const token = jwt.sign({ id: user.id, username: user.username }, SECRET_KEY, { expiresIn: 30000 });
   res.json({ token });
 });
@@ -49,13 +49,6 @@ app.use((req, res, next)=>{
 
 });
 
-
-const PORT = process.env.PORT;
-const PASSWORD = process.env.PASSWORD;
-const AAP_NAME = process.env.AAP_NAME;
-const USER_NAME = process.env.USER_NAME;
-const CLUSTER_NAME = process.env.CLUSTER_NAME;
-
 mongoose.connect(`mongodb+srv://${USER_NAME}:${PASSWORD}@${CLUSTER_NAME}.0umakns.mongodb.net`,{
   retryWrites: true, 
   w: 'majority', 
@@ -68,7 +61,7 @@ mongoose.connect(`mongodb+srv://${USER_NAME}:${PASSWORD}@${CLUSTER_NAME}.0umakns
 
 app.use('/api', userRouter);
 
-app.listen(port, ()=>{
+app.listen(PORT, ()=>{
   console.log(`Servidor iniciado na porta ${PORT}`);
 });
 
