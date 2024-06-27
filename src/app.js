@@ -18,9 +18,8 @@ const SECRET_KEY = 'your_secret_key';
 
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
-
   const user = await userService.getByUserName(username);
-
+  
   if (!user) {
       return res.status(401).send('Invalid username or password');
   }
@@ -40,13 +39,13 @@ app.use((req, res, next)=>{
   if(!token){
     return res.status(401).send('Token not found');
   }
+  
   jwt.verify(token, SECRET_KEY, function(err, decoded) {
-    if(err){
-      return res.status(401).send('Invalid Token');
-    }
-    next();
+  if(err){
+    return res.status(401).send('Invalid Token');
+  }
+  next();
   });
-
 });
 
 mongoose.connect(`mongodb+srv://${USER_NAME}:${PASSWORD}@${CLUSTER_NAME}.0umakns.mongodb.net`,{
